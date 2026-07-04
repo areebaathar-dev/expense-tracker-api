@@ -1,131 +1,135 @@
-# Expense Tracker API
+# 💰 Expense Tracker REST API
 
-A RESTful Web API built with **C# and ASP.NET Core 8**, using **Entity Framework Core** for
-data access and **Swagger** for interactive API documentation. Tracks expenses grouped by
-category — CRUD endpoints plus a summary/reporting endpoint.
+A RESTful Web API for tracking personal expenses by category — built with **C# and ASP.NET Core 8**, using **Entity Framework Core** for data access and **Swagger/OpenAPI** for interactive, auto-generated API documentation.
 
-This mirrors the PHP/MySQL Expense Management System project, rebuilt as a proper
-client-server REST API to demonstrate C#/.NET backend and API development skills.
+This project demonstrates a full client-server architecture: proper REST conventions, relational data modeling, DTO-based contracts, and documented, testable endpoints.
 
----
-
-## What this project demonstrates
-
-- RESTful API design (proper HTTP verbs, status codes, resource-based routes)
-- Client-server architecture (this API is the server; Swagger UI, Postman, or any future
-  frontend acts as the client)
-- Entity Framework Core (Code-First, migrations, relationships, LINQ queries)
-- DTOs (separating what the database stores from what the API exposes)
-- Auto-generated API documentation via Swagger/OpenAPI
+![C#](https://img.shields.io/badge/C%23-239120?style=flat&logo=c-sharp&logoColor=white)
+![.NET](https://img.shields.io/badge/.NET%208-512BD4?style=flat&logo=dotnet&logoColor=white)
+![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-5C2D91?style=flat&logo=dotnet&logoColor=white)
+![SQL Server](https://img.shields.io/badge/SQL%20Server-CC2927?style=flat&logo=microsoft-sql-server&logoColor=white)
+![Entity Framework Core](https://img.shields.io/badge/EF%20Core-512BD4?style=flat)
+![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=flat&logo=swagger&logoColor=black)
 
 ---
 
-## Prerequisites
+## 📖 Overview
 
-You already have what you need:
-- **Visual Studio 2022** (Community edition is fine) with the **ASP.NET and web development**
-  workload installed
-- **SQL Server LocalDB** — this ships automatically with Visual Studio, no separate install needed
+Expense Tracker REST API lets a client (Swagger UI, Postman, or any future frontend) create, read, update, and delete expenses, group them by category, and pull category-wise spending summaries — all through a clean, documented HTTP API rather than a server-rendered page.
 
-If you'd rather use the command line instead of Visual Studio, install the
-[.NET 8 SDK](https://dotnet.microsoft.com/download) first.
+It's a from-scratch rebuild of an earlier PHP/MySQL expense tracker, this time as a proper client-server REST API using the C#/.NET stack.
 
 ---
 
-## Setup — Option A: Visual Studio (recommended for you)
+## ✨ Features
 
-1. Open Visual Studio → **Open a project or solution** → select `ExpenseTrackerAPI.csproj`
-   from this folder.
-2. Visual Studio will automatically restore the NuGet packages listed in the `.csproj`
-   (EF Core, Swashbuckle). If it doesn't, right-click the project in Solution Explorer →
-   **Restore NuGet Packages**.
-3. Open the **Package Manager Console** (Tools → NuGet Package Manager → Package Manager
-   Console) and run:
+- Full CRUD for expenses (`GET`, `POST`, `PUT`, `DELETE`)
+- Filter expenses by category
+- Category-wise spending summary endpoint (totals + counts)
+- Relational data model with EF Core Code-First migrations
+- DTOs separating internal data models from the public API contract
+- Interactive API documentation via Swagger/OpenAPI — every endpoint is testable straight from the browser
+- Proper REST status codes (`200`, `201`, `204`, `400`, `404`) instead of always returning `200`
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer            | Technology                          |
+|-------------------|--------------------------------------|
+| Language          | C#                                   |
+| Framework         | ASP.NET Core 8 (Web API)             |
+| ORM               | Entity Framework Core (Code-First)   |
+| Database          | SQL Server (LocalDB for development) |
+| API Documentation | Swagger / OpenAPI (Swashbuckle)      |
+| Architecture      | RESTful client-server                |
+
+---
+
+## 📡 API Endpoints
+
+| Method | Endpoint                          | Description                                  |
+|--------|------------------------------------|-----------------------------------------------|
+| GET    | `/api/expenses`                    | Get all expenses (optional `?categoryId=`)   |
+| GET    | `/api/expenses/{id}`               | Get a single expense by ID                   |
+| POST   | `/api/expenses`                    | Create a new expense                         |
+| PUT    | `/api/expenses/{id}`               | Update an existing expense                   |
+| DELETE | `/api/expenses/{id}`               | Delete an expense                            |
+| GET    | `/api/expenses/summary`            | Get total spending grouped by category       |
+| GET    | `/api/categories`                  | Get all expense categories                   |
+
+Full interactive documentation is available via Swagger UI once the project is running (see below).
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Visual Studio 2022 (Community edition is fine) with the **ASP.NET and web development** workload, **or** the [.NET 8 SDK](https://dotnet.microsoft.com/download) for CLI use
+- SQL Server LocalDB (ships automatically with Visual Studio)
+
+### Run with Visual Studio
+1. Clone the repo and open `ExpenseTrackerAPI.csproj`
+2. Open **Package Manager Console** → run:
    ```
    Add-Migration InitialCreate
    ```
-   This generates the database schema from the `Expense` and `Category` models.
-4. Press **F5** (or click the green "Run" button). This will:
-   - Apply the migration automatically (creating `ExpenseTrackerDb` in LocalDB)
-   - Launch your browser straight into the Swagger UI
+3. Press **F5** — this applies the migration, starts the app, and opens Swagger UI automatically
 
-That's it — you should see an interactive page listing every endpoint, and you can click
-**"Try it out"** on any of them to send real requests.
-
-## Setup — Option B: Command line
-
+### Run with the CLI
 ```bash
-cd ExpenseTrackerAPI
+git clone https://github.com/areebaathar-dev/expense-tracker-api.git
+cd expense-tracker-api
 dotnet restore
-dotnet tool install --global dotnet-ef   # only needed once, ever
+dotnet tool install --global dotnet-ef
 dotnet ef migrations add InitialCreate
 dotnet run
 ```
-
-Then open the URL shown in the terminal (e.g. `https://localhost:7099`) in your browser.
-
----
-
-## Testing it
-
-Once running, the Swagger UI at the root URL lets you try every endpoint. Suggested test flow:
-
-1. `GET /api/categories` — confirm the 4 seeded categories (Food, Transport, Utilities,
-   Entertainment) come back.
-2. `POST /api/expenses` — create an expense:
-   ```json
-   {
-     "title": "Grocery shopping",
-     "amount": 3500,
-     "categoryId": 1,
-     "notes": "Weekly groceries"
-   }
-   ```
-3. `GET /api/expenses` — see it in the list.
-4. `GET /api/expenses?categoryId=1` — filter by category.
-5. `PUT /api/expenses/1` — update it.
-6. `GET /api/expenses/summary` — see totals grouped by category.
-7. `DELETE /api/expenses/1` — remove it.
-
-You can also import the API into **Postman** by pointing it at
-`https://localhost:7099/swagger/v1/swagger.json` (Postman can auto-generate a full
-collection from that).
+Then open the URL shown in the terminal (e.g. `https://localhost:7099`).
 
 ---
 
-## Project structure
+## 🧪 Testing
+
+Try it directly from the Swagger UI, or with a sample request:
+
+```json
+POST /api/expenses
+{
+  "title": "Grocery shopping",
+  "amount": 3500,
+  "categoryId": 1,
+  "notes": "Weekly groceries"
+}
+```
+
+The API ships with four seeded categories: **Food, Transport, Utilities, Entertainment**.
+
+---
+
+## 📁 Project Structure
 
 ```
 ExpenseTrackerAPI/
-├── Controllers/
-│   ├── ExpensesController.cs    # CRUD + filtering + summary endpoint
-│   └── CategoriesController.cs  # lookup endpoint
-├── Models/
-│   ├── Expense.cs                # EF Core entity
-│   └── Category.cs               # EF Core entity
-├── DTOs/
-│   └── ExpenseDtos.cs            # request/response shapes (never expose entities directly)
-├── Data/
-│   └── AppDbContext.cs           # EF Core DbContext + seed data
-├── Program.cs                    # app startup: services, middleware, Swagger
-└── appsettings.json              # connection string
+├── Controllers/     # API endpoints (ExpensesController, CategoriesController)
+├── Models/          # EF Core entities (Expense, Category)
+├── DTOs/            # Request/response contracts
+├── Data/            # EF Core DbContext + seed data
+├── Program.cs       # App startup, middleware, Swagger config
+└── appsettings.json # Configuration
 ```
 
 ---
 
-## Extending it further (optional, if you have time before applying)
+## 🔭 Possible Future Improvements
 
-- Add a `PATCH` endpoint for partial updates
-- Add pagination to `GET /api/expenses` (`?page=1&pageSize=10`)
-- Add simple API key authentication middleware
-- Deploy it for free on **Render** or **Azure App Service (free tier)** so you can link a
-  live Swagger URL on your resume/GitHub, not just source code
+- Pagination on `GET /api/expenses`
+- API key or JWT-based authentication
+- Deployment to Azure App Service / Render for a live demo link
 
 ---
 
-## Resume bullet suggestions (once you've run it yourself and understand it)
+## 👩‍💻 Author
 
-- Built a RESTful Expense Tracker API in C# and ASP.NET Core with full CRUD endpoints,
-  Entity Framework Core data access, and Swagger-generated API documentation.
-- Designed a client-server architecture with DTO-based request/response contracts,
-  relational data modeling, and category-based filtering and reporting endpoints.
+**Areeba Athar**
+[LinkedIn](https://linkedin.com/in/areeba-athar) · [GitHub](https://github.com/areebaathar-dev)
